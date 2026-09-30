@@ -1,3 +1,3 @@
-const mensaje: string = "Sistema de turnos";
+export const mensaje: string = 'Sistema de turnos'
 
-console.log(mensaje);
+console.log(mensaje)
