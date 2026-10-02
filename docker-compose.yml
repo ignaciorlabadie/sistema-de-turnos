@@ -1,0 +1,30 @@
+services:
+    db:
+        image: postgres:16-alpine
+        restart: always
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: sistema_turnos
+        ports:
+            - '5432:5432'
+        volumes:
+            - pg_data:/var/lib/postgresql/data
+
+    app:
+        build: .
+        restart: always
+        ports:
+            - '3000:3000'
+        depends_on:
+            - db
+        environment:
+            PORT: 3000
+            DB_HOST: db
+            DB_PORT: 5432
+            DB_NAME: sistema_turnos
+            DB_USER: postgres
+            DB_PASSWORD: postgres
+
+volumes:
+    pg_data:
