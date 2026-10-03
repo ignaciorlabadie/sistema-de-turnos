@@ -1,21 +1,28 @@
 import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
+import sequelize from './config/database.js'
 
 const app = express()
-const PORT = process.env.PORT || 3000
 
 app.use(cors())
 app.use(express.json())
 
-app.get('/health', (_req, res) => {
-    res.json({ status: 'ok' })
+app.get('/health', async (_req, res) => {
+    try {
+        await sequelize.authenticate()
+        res.json({
+            status: 'ok',
+            db: 'connected',
+            timestamp: new Date().toISOString(),
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(503).json({
+            status: 'error',
+            db: 'disconnected',
+        })
+    }
 })
 
-app.listen(PORT, () => {
-    console.log(`Servidor del sistema de turnos corriendo en puerto ${PORT}`)
-})
-
-export const mensaje: string = 'Sistema de turnos'
-
-console.log(mensaje)
+export default app

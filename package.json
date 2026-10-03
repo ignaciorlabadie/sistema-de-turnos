@@ -2,7 +2,7 @@
     "name": "sistema-de-turnos",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/app.js",
+    "main": "dist/server.js",
     "engines": {
         "node": "24.20.0"
     },
@@ -10,9 +10,9 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "typecheck": "tsc --noEmit",
-        "dev": "tsx watch src/app.ts",
+        "dev": "tsx watch src/server.ts",
         "build": "tsc",
-        "start": "node dist/app.js",
+        "start": "node dist/server.js",
         "lint": "eslint .",
         "format": "prettier . --write",
         "format:check": "prettier . --check",
