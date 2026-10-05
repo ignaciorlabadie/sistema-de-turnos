@@ -1,7 +1,6 @@
 services:
     db:
         image: postgres:16-alpine
-        restart: always
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
@@ -13,7 +12,6 @@ services:
 
     app:
         build: .
-        restart: always
         ports:
             - '3000:3000'
         depends_on:
