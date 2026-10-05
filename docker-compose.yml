@@ -1,6 +1,7 @@
 services:
     db:
         image: postgres:16-alpine
+        restart: always
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
@@ -9,13 +10,20 @@ services:
             - '5432:5432'
         volumes:
             - pg_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U postgres -d sistema_turnos']
+            interval: 5s
+            timeout: 5s
+            retries: 5
 
     app:
         build: .
+        restart: always
         ports:
             - '3000:3000'
         depends_on:
-            - db
+            db:
+                condition: service_healthy
         environment:
             PORT: 3000
             DB_HOST: db
