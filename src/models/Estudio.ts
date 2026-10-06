@@ -1,13 +1,15 @@
-import { Model, DataTypes } from "sequelize";
+import { Model, DataTypes } from 'sequelize'
 import sequelize from '../config/database.js'
 
 class Estudio extends Model {
-    public id!: number;
-    public paciente_id!: number;
-    public tipo!: string;
-    public fecha!: Date;
-    public descripcion?: string;
-    public archivo_url?: string;
+    declare id: number
+    declare paienteId: number
+    declare tipo: string
+    declare feha: Date
+    declare decripcion: string
+    declare arhivoUrl: string
+    declare createdAt: Date
+    declare updatedAt: Date
 }
 
 Estudio.init(
@@ -15,43 +17,43 @@ Estudio.init(
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
-            primaryKey: true
+            primaryKey: true,
         },
 
-        paciente_id: {
+        pacienteId: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "paciente",
-                key: "id"
-            }
+                model: 'pacientes',
+                key: 'id',
+            },
         },
 
         tipo: {
             type: DataTypes.STRING(100),
-            allowNull: false
+            allowNull: false,
         },
 
         fecha: {
-            type: DataTypes.DATEONLY,
-            allowNull: false
+            type: DataTypes.DATE,
+            allowNull: false,
         },
 
         descripcion: {
             type: DataTypes.TEXT,
-            allowNull: true
+            allowNull: true,
         },
 
-        archivo_url: {
+        archivoUrl: {
             type: DataTypes.TEXT,
-            allowNull: true
-        }
+            allowNull: true,
+        },
     },
     {
         sequelize,
-        tableName: "estudio",
-        timestamps: false
-    }
-);
+        tableName: 'estudios',
+        timestamps: true,
+    },
+)
 
-export default Estudio;
+export default Estudio
