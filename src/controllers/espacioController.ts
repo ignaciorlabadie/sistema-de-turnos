@@ -1,5 +1,5 @@
-import { Request, Response } from 'express'
-import { obtenerOcupacion } from '../services/espacioService.js'
+import type { Request, Response } from 'express'
+import obtenerOcupacion from '../services/espacioService.js'
 
 export const getOcupacionAdmin = async (req: Request, res: Response): Promise<void> => {
     try {
