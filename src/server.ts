@@ -35,6 +35,7 @@ sequelize
     })
     .catch((error) => {
         console.error('Error al conectar con la base de datos:', error)
+        process.exit(1)
     })
 
 process.on('uncaughtException', (error) => {
