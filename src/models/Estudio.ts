@@ -3,11 +3,11 @@ import sequelize from '../config/database.js'
 
 class Estudio extends Model {
     declare id: number
-    declare paienteId: number
+    declare pacienteId: number
     declare tipo: string
-    declare feha: Date
-    declare decripcion: string
-    declare arhivoUrl: string
+    declare fecha: Date
+    declare descripcion: string
+    declare archivoUrl: string
     declare createdAt: Date
     declare updatedAt: Date
 }
@@ -35,7 +35,7 @@ Estudio.init(
         },
 
         fecha: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: false,
         },
 
