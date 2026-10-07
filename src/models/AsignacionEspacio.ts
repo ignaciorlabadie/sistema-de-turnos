@@ -1,19 +1,20 @@
 import { DataTypes, Model } from 'sequelize'
 import sequelize from '../config/database.js'
+import type { TipoAsignacionEspacio } from '../types/TipoAsignacionEspacio.js'
 
 class AsignacionEspacio extends Model {
     declare id: number
-    
+
     declare espacioId: number
     declare profesionalId: number
 
-    declare tipo: 'FIJA' | 'ESPECIFICA'
+    declare tipo: TipoAsignacionEspacio
     // fija son las horas designadas que tiene un profesional. Sería su MODULO
     // Especifica se usa cuando un profesional agrega una o varias horas para uno o varios dias en concreto.
     // Las dos se deben contar de igual forma para el valor del alquiler de c/u
     declare diaSemana: number | null
     declare fecha: Date | null
-    
+
     declare horaInicio: string
     declare horaFin: string
 
@@ -46,7 +47,7 @@ AsignacionEspacio.init(
             validate: {
                 min: 0, // 0 = Domingo
                 max: 6, // 6 = Sábado
-            }
+            },
         },
         fecha: {
             type: DataTypes.DATEONLY, // DATEONLY guarda solo YYYY-MM-DD (sin hora)
@@ -69,13 +70,17 @@ AsignacionEspacio.init(
             // Esta validación asegura la coherencia de los datos antes de guardar
             validarTipoAsignacion() {
                 if (this.tipo === 'FIJA' && this.diaSemana === null) {
-                    throw new Error('Las asignaciones FIJAS deben tener un día de la semana asignado.')
+                    throw new Error(
+                        'Las asignaciones FIJAS deben tener un día de la semana asignado.',
+                    )
                 }
                 if (this.tipo === 'ESPECIFICA' && this.fecha === null) {
-                    throw new Error('Las asignaciones ESPECIFICAS deben tener una fecha exacta asignada.')
+                    throw new Error(
+                        'Las asignaciones ESPECIFICAS deben tener una fecha exacta asignada.',
+                    )
                 }
-            }
-        }
+            },
+        },
     },
 )
 
