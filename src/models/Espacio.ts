@@ -1,0 +1,48 @@
+import { DataTypes, Model } from 'sequelize'
+import sequelize from '../config/database.js'
+
+class Espacio extends Model {
+    declare id: number
+    
+    declare nombre: string
+    declare tipo: 'GIMNASIO' | 'CONSULTORIO'
+    declare ubicacion: 'ADELANTE' | 'ATRAS'
+    declare activo: boolean
+
+    declare createdAt: Date
+    declare updatedAt: Date
+}
+
+Espacio.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
+        nombre: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        tipo: {
+            type: DataTypes.ENUM('GIMNASIO', 'CONSULTORIO'),
+            allowNull: false,
+        },
+        ubicacion: {
+            type: DataTypes.ENUM('ADELANTE', 'ATRAS'),
+            allowNull: false,
+        },
+        activo: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
+    },
+    {
+        sequelize,
+        tableName: 'espacios',
+        timestamps: true,
+    },
+)
+
+export default Espacio
