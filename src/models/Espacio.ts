@@ -1,12 +1,14 @@
 import { DataTypes, Model } from 'sequelize'
+import type { TipoEspacio } from '../types/TipoEspacio.js'
+import type { UbicacionEspacio } from '../types/UbicacionEspacio.js'
 import sequelize from '../config/database.js'
 
 class Espacio extends Model {
     declare id: number
-    
+
     declare nombre: string
-    declare tipo: 'GIMNASIO' | 'CONSULTORIO'
-    declare ubicacion: 'ADELANTE' | 'ATRAS'
+    declare tipo: TipoEspacio
+    declare ubicacion: UbicacionEspacio
     declare activo: boolean
 
     declare createdAt: Date
