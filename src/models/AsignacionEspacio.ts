@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize'
 import sequelize from '../config/database.js'
+import type { DiaSemana } from '../types/DiaSemana.js'
 import type { TipoAsignacionEspacio } from '../types/TipoAsignacionEspacio.js'
 
 class AsignacionEspacio extends Model {
@@ -12,7 +13,7 @@ class AsignacionEspacio extends Model {
     // fija son las horas designadas que tiene un profesional. Sería su MODULO
     // Especifica se usa cuando un profesional agrega una o varias horas para uno o varios dias en concreto.
     // Las dos se deben contar de igual forma para el valor del alquiler de c/u
-    declare diaSemana: number | null
+    declare diaSemana: DiaSemana | null
     declare fecha: Date | null
 
     declare horaInicio: string
@@ -42,12 +43,16 @@ AsignacionEspacio.init(
             allowNull: false,
         },
         diaSemana: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.ENUM(
+                'LUNES',
+                'MARTES',
+                'MIERCOLES',
+                'JUEVES',
+                'VIERNES',
+                'SABADO',
+                'DOMINGO',
+            ),
             allowNull: true,
-            validate: {
-                min: 0, // 0 = Domingo
-                max: 6, // 6 = Sábado
-            },
         },
         fecha: {
             type: DataTypes.DATEONLY, // DATEONLY guarda solo YYYY-MM-DD (sin hora)
