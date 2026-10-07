@@ -16,6 +16,9 @@
         "lint": "eslint .",
         "format": "prettier . --write",
         "format:check": "prettier . --check",
+        "db:migrate": "sequelize-cli db:migrate --config src/config/config.js --migrations-path src/database/migrations",
+        "db:migrate:status": "sequelize-cli db:migrate:status --config src/config/config.js --migrations-path src/database/migrations",
+        "db:migrate:undo": "sequelize-cli db:migrate:undo --config src/config/config.js --migrations-path src/database/migrations",
         "prepare": "husky"
     },
     "keywords": [],
@@ -39,6 +42,7 @@
         "eslint": "10.11.0",
         "husky": "9.1.7",
         "prettier": "3.9.9",
+        "sequelize-cli": "6.6.5",
         "tsx": "4.23.15",
         "typescript": "5.9.2",
         "typescript-eslint": "8.70.1",
