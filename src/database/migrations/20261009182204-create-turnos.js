@@ -1,31 +1,17 @@
-import { DataTypes, Model } from 'sequelize'
-import type { EstadoTurno } from '../types/EstadoTurno.js'
-import sequelize from '../config/database.js'
+'use strict'
 
-class Turno extends Model {
-    declare id: number
-    declare pacienteId: number
-    declare profesionalId: number
-    declare agendaId: number
-    declare fecha: Date
-    declare hora: string
-    declare estado: EstadoTurno
-    declare motivo: string
-    declare observaciones: string | null
-    declare createdAt: Date
-    declare updatedAt: Date
-}
-
-Turno.init(
-    {
+/** @type {import('sequelize-cli').Migration} */
+export async function up(queryInterface, Sequelize) {
+    await queryInterface.createTable('turnos', {
         id: {
-            type: DataTypes.INTEGER,
+            type: Sequelize.INTEGER,
             autoIncrement: true,
             primaryKey: true,
+            allowNull: false,
         },
 
         pacienteId: {
-            type: DataTypes.INTEGER,
+            type: Sequelize.INTEGER,
             allowNull: false,
             references: {
                 model: 'pacientes',
@@ -36,7 +22,7 @@ Turno.init(
         },
 
         profesionalId: {
-            type: DataTypes.INTEGER,
+            type: Sequelize.INTEGER,
             allowNull: false,
             references: {
                 model: 'profesionales',
@@ -47,7 +33,7 @@ Turno.init(
         },
 
         agendaId: {
-            type: DataTypes.INTEGER,
+            type: Sequelize.INTEGER,
             allowNull: false,
             references: {
                 model: 'agendas',
@@ -58,17 +44,17 @@ Turno.init(
         },
 
         fecha: {
-            type: DataTypes.DATEONLY,
+            type: Sequelize.DATEONLY,
             allowNull: false,
         },
 
         hora: {
-            type: DataTypes.TIME,
+            type: Sequelize.TIME,
             allowNull: false,
         },
 
         estado: {
-            type: DataTypes.ENUM(
+            type: Sequelize.ENUM(
                 'PENDIENTE',
                 'CONFIRMADO',
                 'CANCELADO',
@@ -79,24 +65,37 @@ Turno.init(
         },
 
         motivo: {
-            type: DataTypes.STRING(255),
+            type: Sequelize.STRING(255),
             allowNull: false,
-            validate: {
-                notEmpty: true,
-                len: [1, 255],
-            },
         },
 
         observaciones: {
-            type: DataTypes.TEXT,
+            type: Sequelize.TEXT,
             allowNull: true,
         },
-    },
-    {
-        sequelize,
-        tableName: 'turnos',
-        timestamps: true,
-    },
-)
 
-export default Turno
+        createdAt: {
+            type: Sequelize.DATE,
+            allowNull: false,
+        },
+
+        updatedAt: {
+            type: Sequelize.DATE,
+            allowNull: false,
+        },
+    })
+
+    await queryInterface.sequelize.query(`
+        ALTER TABLE "turnos"
+        ADD CONSTRAINT "check_turnos_motivo_no_vacio"
+        CHECK (length(trim("motivo")) > 0);
+    `)
+}
+
+export async function down(queryInterface) {
+    await queryInterface.dropTable('turnos')
+
+    await queryInterface.sequelize.query(`
+        DROP TYPE IF EXISTS "enum_turnos_estado";
+    `)
+}

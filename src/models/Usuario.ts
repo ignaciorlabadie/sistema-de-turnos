@@ -19,12 +19,16 @@ Usuario.init(
             primaryKey: true,
         },
         email: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(254),
             allowNull: false,
             unique: true,
+            validate: {
+                isEmail: true,
+                len: [3, 254],
+            },
         },
         password: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(255),
             allowNull: false,
         },
         rol: {

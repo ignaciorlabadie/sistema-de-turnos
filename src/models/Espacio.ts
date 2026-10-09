@@ -23,8 +23,12 @@ Espacio.init(
             primaryKey: true,
         },
         nombre: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(100),
             allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [1, 100],
+            },
         },
         tipo: {
             type: DataTypes.ENUM('GIMNASIO', 'CONSULTORIO'),

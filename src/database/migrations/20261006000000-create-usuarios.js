@@ -12,13 +12,13 @@ export async function up(queryInterface, Sequelize) {
         },
 
         email: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(254),
             allowNull: false,
             unique: true,
         },
 
         password: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(255),
             allowNull: false,
         },
 

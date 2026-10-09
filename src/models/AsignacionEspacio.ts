@@ -33,10 +33,22 @@ AsignacionEspacio.init(
         espacioId: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            references: {
+                model: 'espacios',
+                key: 'id',
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'RESTRICT',
         },
         profesionalId: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            references: {
+                model: 'profesionales',
+                key: 'id',
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'RESTRICT',
         },
         tipo: {
             type: DataTypes.ENUM('FIJA', 'ESPECIFICA'),
@@ -74,14 +86,20 @@ AsignacionEspacio.init(
         validate: {
             // Esta validación asegura la coherencia de los datos antes de guardar
             validarTipoAsignacion() {
-                if (this.tipo === 'FIJA' && this.diaSemana === null) {
+                if (
+                    this.tipo === 'FIJA' &&
+                    (!this.diaSemana || this.fecha !== null)
+                ) {
                     throw new Error(
-                        'Las asignaciones FIJAS deben tener un día de la semana asignado.',
+                        'Una asignación FIJA debe tener día de semana y no una fecha específica.',
                     )
                 }
-                if (this.tipo === 'ESPECIFICA' && this.fecha === null) {
+                if (
+                    this.tipo === 'ESPECIFICA' &&
+                    (!this.fecha || this.diaSemana !== null)
+                ) {
                     throw new Error(
-                        'Las asignaciones ESPECIFICAS deben tener una fecha exacta asignada.',
+                        'Una asignación ESPECIFICA debe tener fecha y no un día de semana.',
                     )
                 }
             },

@@ -20,6 +20,7 @@ Agenda.init(
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
+            allowNull: false,
         },
 
         profesionalId: {
@@ -29,6 +30,8 @@ Agenda.init(
                 model: 'profesionales',
                 key: 'id',
             },
+            onUpdate: 'CASCADE',
+            onDelete: 'RESTRICT',
         },
 
         diaSemana: {
@@ -57,6 +60,10 @@ Agenda.init(
         duracionTurno: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            validate: {
+                isInt: true,
+                min: 1,
+            },
         },
 
         activo: {
