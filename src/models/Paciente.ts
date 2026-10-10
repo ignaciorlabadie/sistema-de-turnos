@@ -26,6 +26,7 @@ Paciente.init(
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
+            allowNull: false,
         },
 
         usuarioId: {
@@ -36,37 +37,55 @@ Paciente.init(
                 model: 'users',
                 key: 'id',
             },
+            onUpdate: 'CASCADE',
+            onDelete: 'RESTRICT',
         },
 
         nombre: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(100),
             allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [2, 100],
+            },
         },
 
         apellido: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(100),
             allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [2, 100],
+            },
         },
 
         dni: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(10),
             allowNull: false,
             unique: true,
         },
 
         telefono: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(25),
             allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [6, 25],
+            },
         },
 
         fechaNacimiento: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: false,
         },
 
         direccion: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(150),
             allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [3, 150],
+            },
         },
     },
     {

@@ -6,8 +6,8 @@ class Estudio extends Model {
     declare pacienteId: number
     declare tipo: string
     declare fecha: Date
-    declare descripcion: string
-    declare archivoUrl: string
+    declare descripcion: string | null
+    declare archivoUrl: string | null
     declare createdAt: Date
     declare updatedAt: Date
 }
@@ -27,11 +27,17 @@ Estudio.init(
                 model: 'pacientes',
                 key: 'id',
             },
+            onUpdate: 'CASCADE',
+            onDelete: 'RESTRICT',
         },
 
         tipo: {
             type: DataTypes.STRING(100),
             allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [1, 100],
+            },
         },
 
         fecha: {

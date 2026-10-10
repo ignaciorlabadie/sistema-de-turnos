@@ -1,9 +1,8 @@
 'use strict'
 
 /** @type {import('sequelize-cli').Migration} */
-
 export async function up(queryInterface, Sequelize) {
-    await queryInterface.createTable('pacientes', {
+    await queryInterface.createTable('estudios', {
         id: {
             type: Sequelize.INTEGER,
             autoIncrement: true,
@@ -11,47 +10,35 @@ export async function up(queryInterface, Sequelize) {
             allowNull: false,
         },
 
-        usuarioId: {
+        pacienteId: {
             type: Sequelize.INTEGER,
             allowNull: false,
-            unique: true,
             references: {
-                model: 'users',
+                model: 'pacientes',
                 key: 'id',
             },
             onUpdate: 'CASCADE',
             onDelete: 'RESTRICT',
         },
 
-        nombre: {
+        tipo: {
             type: Sequelize.STRING(100),
             allowNull: false,
         },
 
-        apellido: {
-            type: Sequelize.STRING(100),
-            allowNull: false,
-        },
-
-        dni: {
-            type: Sequelize.STRING(10),
-            allowNull: false,
-            unique: true,
-        },
-
-        telefono: {
-            type: Sequelize.STRING(25),
-            allowNull: false,
-        },
-
-        fechaNacimiento: {
+        fecha: {
             type: Sequelize.DATEONLY,
             allowNull: false,
         },
 
-        direccion: {
-            type: Sequelize.STRING(150),
-            allowNull: false,
+        descripcion: {
+            type: Sequelize.TEXT,
+            allowNull: true,
+        },
+
+        archivoUrl: {
+            type: Sequelize.TEXT,
+            allowNull: true,
         },
 
         createdAt: {
@@ -64,8 +51,14 @@ export async function up(queryInterface, Sequelize) {
             allowNull: false,
         },
     })
+
+    await queryInterface.sequelize.query(`
+        ALTER TABLE "estudios"
+        ADD CONSTRAINT "check_estudios_tipo_no_vacio"
+        CHECK (length(trim("tipo")) > 0);
+    `)
 }
 
 export async function down(queryInterface) {
-    await queryInterface.dropTable('pacientes')
+    await queryInterface.dropTable('estudios')
 }

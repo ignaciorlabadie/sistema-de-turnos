@@ -16,6 +16,7 @@
         "lint": "eslint .",
         "format": "prettier . --write",
         "format:check": "prettier . --check",
+        "db:migration:generate": "sequelize-cli migration:generate --config src/config/config.js --migrations-path src/database/migrations --name",
         "db:migrate": "sequelize-cli db:migrate --config src/config/config.js --migrations-path src/database/migrations",
         "db:migrate:status": "sequelize-cli db:migrate:status --config src/config/config.js --migrations-path src/database/migrations",
         "db:migrate:undo": "sequelize-cli db:migrate:undo --config src/config/config.js --migrations-path src/database/migrations",

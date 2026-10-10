@@ -17,7 +17,7 @@ export async function up(queryInterface, Sequelize) {
                 key: 'id',
             },
             onUpdate: 'CASCADE',
-            onDelete: 'CASCADE',
+            onDelete: 'RESTRICT',
         },
         profesionalId: {
             type: Sequelize.INTEGER,
@@ -27,7 +27,7 @@ export async function up(queryInterface, Sequelize) {
                 key: 'id',
             },
             onUpdate: 'CASCADE',
-            onDelete: 'CASCADE',
+            onDelete: 'RESTRICT',
         },
         tipo: {
             type: Sequelize.ENUM('FIJA', 'ESPECIFICA'),
@@ -66,6 +66,27 @@ export async function up(queryInterface, Sequelize) {
             allowNull: false,
         },
     })
+    await queryInterface.sequelize.query(`
+        ALTER TABLE "asignaciones_espacios"
+        ADD CONSTRAINT "check_asignaciones_tipo_fecha"
+        CHECK (
+            (
+                "tipo" = 'FIJA'
+                AND "diaSemana" IS NOT NULL
+                AND "fecha" IS NULL
+            )
+            OR
+            (
+                "tipo" = 'ESPECIFICA'
+                AND "fecha" IS NOT NULL
+                AND "diaSemana" IS NULL
+            )
+        );
+
+        ALTER TABLE "asignaciones_espacios"
+        ADD CONSTRAINT "check_asignaciones_horario"
+        CHECK ("horaFin" > "horaInicio");
+    `)
 }
 export async function down(queryInterface) {
     await queryInterface.dropTable('asignaciones_espacios')
