@@ -7,7 +7,7 @@ class Turno extends Model {
     declare pacienteId: number
     declare profesionalId: number
     declare agendaId: number
-    declare fecha: Date
+    declare fecha: string
     declare hora: string
     declare estado: EstadoTurno
     declare motivo: string
