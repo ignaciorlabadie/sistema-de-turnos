@@ -14,7 +14,7 @@ class AsignacionEspacio extends Model {
     // Especifica se usa cuando un profesional agrega una o varias horas para uno o varios dias en concreto.
     // Las dos se deben contar de igual forma para el valor del alquiler de c/u
     declare diaSemana: DiaSemana | null
-    declare fecha: Date | null
+    declare fecha: string | null
 
     declare horaInicio: string
     declare horaFin: string
@@ -88,7 +88,7 @@ AsignacionEspacio.init(
             validarTipoAsignacion() {
                 if (
                     this.tipo === 'FIJA' &&
-                    (!this.diaSemana || this.fecha !== null)
+                    (!this.diaSemana || this.fecha != null)
                 ) {
                     throw new Error(
                         'Una asignación FIJA debe tener día de semana y no una fecha específica.',
@@ -96,7 +96,7 @@ AsignacionEspacio.init(
                 }
                 if (
                     this.tipo === 'ESPECIFICA' &&
-                    (!this.fecha || this.diaSemana !== null)
+                    (!this.fecha || this.diaSemana != null)
                 ) {
                     throw new Error(
                         'Una asignación ESPECIFICA debe tener fecha y no un día de semana.',

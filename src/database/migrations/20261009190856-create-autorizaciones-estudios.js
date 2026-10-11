@@ -43,9 +43,9 @@ export async function up(queryInterface, Sequelize) {
         },
 
         estado: {
-            type: Sequelize.ENUM('ACTIVA', 'REVOCADA', 'VENCIDA'),
+            type: Sequelize.ENUM('DISPONIBLE', 'VENCIDO'),
             allowNull: false,
-            defaultValue: 'ACTIVA',
+            defaultValue: 'DISPONIBLE',
         },
 
         createdAt: {

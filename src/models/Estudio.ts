@@ -5,7 +5,7 @@ class Estudio extends Model {
     declare id: number
     declare pacienteId: number
     declare tipo: string
-    declare fecha: Date
+    declare fecha: string
     declare descripcion: string | null
     declare archivoUrl: string | null
     declare createdAt: Date
