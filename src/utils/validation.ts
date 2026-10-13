@@ -1,7 +1,7 @@
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const DNI_REGEX = /^\d{7,8}$/
 const TELEFONO_REGEX = /^\+?\d{6,25}$/
-const FECHA_REGEX = /^\d{4}-\d{2}-\d{2}$/
+export const FECHA_REGEX = /^\d{4}-\d{2}-\d{2}$/
 
 export function esEmailValido(email: string): boolean {
     return EMAIL_REGEX.test(email)
@@ -19,7 +19,9 @@ export function esTelefonoValido(telefono: string): boolean {
     return TELEFONO_REGEX.test(telefono)
 }
 
-export function esFechaNacimientoValida(fecha: string): boolean {
+//Valida que el string cumpla con el formato Y-M-D y sea una fecha real en el calendario.
+ 
+export function esFechaValida(fecha: string): boolean {
     if (!FECHA_REGEX.test(fecha)) {
         return false
     }
@@ -30,9 +32,30 @@ export function esFechaNacimientoValida(fecha: string): boolean {
         return false
     }
 
-    if (fechaParseada.toISOString().slice(0, 10) !== fecha) {
+    return fechaParseada.toISOString().slice(0, 10) === fecha
+}
+
+//Valida la fecha de nacimiento asegurando formato válido y que no sea una fecha futura.
+
+export function esFechaNacimientoValida(fecha: string): boolean {
+    if (!esFechaValida(fecha)) {
         return false
     }
 
     return fecha <= new Date().toISOString().slice(0, 10)
+}
+
+// Valida si un string es una URL válida (ej: HTTP/HTTPS o rutas de almacenamiento).
+ 
+export function esUrlValida(url: unknown): url is string {
+    if (typeof url !== 'string' || url.trim().length === 0) {
+        return false
+    }
+
+    try {
+        new URL(url)
+        return true
+    } catch {
+        return false
+    }
 }
