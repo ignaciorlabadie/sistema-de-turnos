@@ -6,8 +6,8 @@ import espacioRoutes from './espacioRoutes.js'
 
 const router = Router()
 
-router.use('api/auth', authRoutes)
-router.use('api/usuarios', usuarioRoutes)
+router.use('/api/auth', authRoutes)
+router.use('/api/usuarios', usuarioRoutes)
 router.use('/api/espacios', espacioRoutes)
 
 export default router
