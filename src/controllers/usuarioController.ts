@@ -10,12 +10,10 @@ import {
     reactivarUsuario,
 } from '../services/usuarioService.js'
 
-import type { Rol } from '../types/Rol.js'
+import { ROLES } from '../types/Rol.js'
 import { AppError } from '../errors/AppError.js'
 import { MENSAJES } from '../errors/mensajes.js'
 import { esEmailValido, esPasswordValida } from '../utils/validation.js'
-
-const ROLES: Rol[] = ['PACIENTE', 'PROFESIONAL', 'ADMIN']
 
 function validarId(req: Request): number {
     const id = Number(req.params.id)
