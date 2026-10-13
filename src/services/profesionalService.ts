@@ -14,6 +14,15 @@ export interface CrearProfesionalDTO {
     especialidad: string
 }
 
+export interface ActualizarProfesionalDTO {
+    nombre?: string
+    apellido?: string
+    dni?: string
+    telefono?: string
+    matricula?: string
+    especialidad?: string
+}
+
 const atributosUsuario = {
     attributes: { exclude: ['password'] },
 }
@@ -119,6 +128,85 @@ export class ProfesionalService {
         })
 
         return Profesional.findByPk(profesional.id, {
+            include: [
+                {
+                    model: Usuario,
+                    as: 'usuario',
+                    ...atributosUsuario,
+                },
+            ],
+        })
+    }
+
+    async actualizar(
+        id: string | number,
+        datos: ActualizarProfesionalDTO,
+    ): Promise<Profesional | null> {
+        const idNumerico = this.normalizarId(id)
+
+        if (idNumerico === null) {
+            throw new AppError(404, 'Profesional no encontrado')
+        }
+
+        const profesional = await Profesional.findByPk(idNumerico)
+
+        if (!profesional) {
+            throw new AppError(404, 'Profesional no encontrado')
+        }
+
+        if ('usuarioId' in datos) {
+            throw new AppError(400, 'El usuarioId no puede ser modificado')
+        }
+
+        if (datos.dni !== undefined && datos.dni !== profesional.dni) {
+            const profesionalConDni = await Profesional.findOne({
+                where: { dni: datos.dni },
+            })
+
+            if (profesionalConDni && profesionalConDni.id !== idNumerico) {
+                throw new AppError(409, 'El DNI ya se encuentra registrado')
+            }
+
+            profesional.dni = datos.dni
+        }
+
+        if (
+            datos.matricula !== undefined &&
+            datos.matricula !== profesional.matricula
+        ) {
+            const profesionalConMatricula = await Profesional.findOne({
+                where: { matricula: datos.matricula },
+            })
+
+            if (
+                profesionalConMatricula &&
+                profesionalConMatricula.id !== idNumerico
+            ) {
+                throw new AppError(409, 'La matrícula ya existe')
+            }
+
+            profesional.matricula = datos.matricula
+        }
+
+        if (datos.nombre !== undefined) {
+            profesional.nombre = datos.nombre
+        }
+
+        if (datos.apellido !== undefined) {
+            profesional.apellido = datos.apellido
+        }
+
+        if (datos.telefono !== undefined) {
+            profesional.telefono = datos.telefono
+        }
+
+        if (datos.especialidad !== undefined) {
+            profesional.especialidad = datos.especialidad
+        }
+
+        await profesional.save()
+
+        return Profesional.findByPk(idNumerico, {
             include: [
                 {
                     model: Usuario,
