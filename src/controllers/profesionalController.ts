@@ -58,6 +58,60 @@ export class ProfesionalController {
             next(error)
         }
     }
+
+    async crear(req: Request, res: Response, next: NextFunction) {
+        try {
+            const {
+                nombre,
+                apellido,
+                dni,
+                telefono,
+                matricula,
+                especialidad,
+                usuarioId,
+            } = req.body
+
+            if (
+                typeof nombre !== 'string' ||
+                !nombre.trim() ||
+                typeof apellido !== 'string' ||
+                !apellido.trim() ||
+                typeof dni !== 'string' ||
+                !dni.trim() ||
+                typeof telefono !== 'string' ||
+                !telefono.trim() ||
+                typeof matricula !== 'string' ||
+                !matricula.trim() ||
+                typeof especialidad !== 'string' ||
+                !especialidad.trim() ||
+                typeof usuarioId !== 'number' ||
+                !Number.isInteger(usuarioId) ||
+                usuarioId <= 0
+            ) {
+                throw new AppError(400, 'Datos de profesional inválidos')
+            }
+
+            const profesional = await profesionalService.crear({
+                usuarioId,
+                nombre,
+                apellido,
+                dni,
+                telefono,
+                matricula,
+                especialidad,
+            })
+
+            return res.status(201).json(profesional)
+        } catch (error) {
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json({
+                    mensaje: error.message,
+                })
+            }
+
+            next(error)
+        }
+    }
 }
 
 export const profesionalController = new ProfesionalController()

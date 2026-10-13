@@ -83,11 +83,12 @@ export class ProfesionalService {
     async crear(datos: CrearProfesionalDTO): Promise<Profesional | null> {
         const usuario = await Usuario.findByPk(datos.usuarioId)
 
-        if (!usuario || usuario.rol !== 'PROFESIONAL') {
-            throw new AppError(
-                400,
-                'El usuario no existe o no posee el rol PROFESIONAL',
-            )
+        if (!usuario) {
+            throw new AppError(404, 'Usuario no encontrado')
+        }
+
+        if (usuario.rol !== 'PROFESIONAL') {
+            throw new AppError(400, 'El usuario no posee el rol PROFESIONAL')
         }
 
         const perfilExistente = await Profesional.findOne({
