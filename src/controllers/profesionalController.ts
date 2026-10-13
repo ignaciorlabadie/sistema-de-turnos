@@ -112,6 +112,58 @@ export class ProfesionalController {
             next(error)
         }
     }
+
+    async actualizar(req: Request, res: Response, next: NextFunction) {
+        try {
+            const id = Number(req.params.id)
+
+            if (!Number.isInteger(id) || id <= 0) {
+                throw new AppError(
+                    400,
+                    'El ID debe ser un número entero positivo',
+                )
+            }
+
+            const { nombre, apellido, dni, telefono, matricula, especialidad } =
+                req.body
+
+            if (
+                (nombre !== undefined &&
+                    (typeof nombre !== 'string' || !nombre.trim())) ||
+                (apellido !== undefined &&
+                    (typeof apellido !== 'string' || !apellido.trim())) ||
+                (dni !== undefined &&
+                    (typeof dni !== 'string' || !dni.trim())) ||
+                (telefono !== undefined &&
+                    (typeof telefono !== 'string' || !telefono.trim())) ||
+                (matricula !== undefined &&
+                    (typeof matricula !== 'string' || !matricula.trim())) ||
+                (especialidad !== undefined &&
+                    (typeof especialidad !== 'string' || !especialidad.trim()))
+            ) {
+                throw new AppError(400, 'Datos de profesional inválidos')
+            }
+
+            const profesional = await profesionalService.actualizar(id, {
+                nombre,
+                apellido,
+                dni,
+                telefono,
+                matricula,
+                especialidad,
+            })
+
+            return res.status(200).json(profesional)
+        } catch (error) {
+            if (error instanceof AppError) {
+                return res.status(error.statusCode).json({
+                    mensaje: error.message,
+                })
+            }
+
+            next(error)
+        }
+    }
 }
 
 export const profesionalController = new ProfesionalController()
