@@ -1,5 +1,19 @@
 import { Profesional, Usuario } from '../models/index.js'
 
+import { AppError } from '../errors/AppError.js'
+
+export interface CrearProfesionalDTO {
+    usuarioId: number
+
+    nombre: string
+    apellido: string
+    dni: string
+    telefono: string
+
+    matricula: string
+    especialidad: string
+}
+
 const atributosUsuario = {
     attributes: { exclude: ['password'] },
 }
@@ -47,6 +61,64 @@ export class ProfesionalService {
 
         return Profesional.findOne({
             where: { usuarioId: idNumerico },
+            include: [
+                {
+                    model: Usuario,
+                    as: 'usuario',
+                    ...atributosUsuario,
+                },
+            ],
+        })
+    }
+
+    async crear(datos: CrearProfesionalDTO): Promise<Profesional | null> {
+        const usuario = await Usuario.findByPk(datos.usuarioId)
+
+        if (!usuario || usuario.rol !== 'PROFESIONAL') {
+            throw new AppError(
+                400,
+                'El usuario no existe o no posee el rol PROFESIONAL',
+            )
+        }
+
+        const perfilExistente = await Profesional.findOne({
+            where: { usuarioId: datos.usuarioId },
+        })
+
+        if (perfilExistente) {
+            throw new AppError(
+                409,
+                'El usuario ya tiene un perfil profesional asignado',
+            )
+        }
+
+        const profesionalConDni = await Profesional.findOne({
+            where: { dni: datos.dni },
+        })
+
+        if (profesionalConDni) {
+            throw new AppError(409, 'El DNI ya se encuentra registrado')
+        }
+
+        const profesionalConMatricula = await Profesional.findOne({
+            where: { matricula: datos.matricula },
+        })
+
+        if (profesionalConMatricula) {
+            throw new AppError(409, 'La matrícula ya existe')
+        }
+
+        const profesional = await Profesional.create({
+            usuarioId: datos.usuarioId,
+            nombre: datos.nombre,
+            apellido: datos.apellido,
+            dni: datos.dni,
+            telefono: datos.telefono,
+            matricula: datos.matricula,
+            especialidad: datos.especialidad,
+        })
+
+        return Profesional.findByPk(profesional.id, {
             include: [
                 {
                     model: Usuario,
