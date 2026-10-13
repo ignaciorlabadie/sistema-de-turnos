@@ -2,8 +2,7 @@ import type { Request, Response, NextFunction } from 'express'
 
 import { AppError } from '../errors/AppError.js'
 import { MENSAJES } from '../errors/mensajes.js'
-
-type Rol = 'PACIENTE' | 'PROFESIONAL' | 'ADMIN'
+import type { Rol } from '../types/Rol.js'
 
 export function verificarAdminOPropio(
     req: Request,
