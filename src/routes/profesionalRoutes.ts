@@ -1,46 +1,34 @@
 import { Router } from 'express'
 
-import { profesionalController } from '../controllers/profesionalController.js'
-import { verificarToken } from '../middlewares/authMiddleware.js'
 import {
-    verificarAdminOPropio,
-    verificarRol,
-} from '../middlewares/rolMiddleware.js'
+    obtenerProfesionales,
+    obtenerProfesionalPorId,
+    obtenerMiPerfilProfesional,
+    registrarProfesional,
+    modificarProfesional,
+    modificarMiPerfilProfesional,
+} from '../controllers/profesionalController.js'
+
+import { verificarToken } from '../middlewares/authMiddleware.js'
+import { verificarRol } from '../middlewares/rolMiddleware.js'
 
 const router = Router()
 
-router.get(
-    '/',
-    verificarToken,
-    verificarRol('ADMIN'),
-    profesionalController.listar,
-)
+router.post('/', verificarToken, verificarRol('ADMIN'), registrarProfesional)
 
-router.get(
-    '/mi-perfil',
-    verificarToken,
-    profesionalController.buscarPorUsuarioId,
-)
+router.get('/', verificarToken, verificarRol('ADMIN'), obtenerProfesionales)
+
+router.get('/me', verificarToken, obtenerMiPerfilProfesional)
+
+router.put('/me', verificarToken, modificarMiPerfilProfesional)
 
 router.get(
     '/:id',
     verificarToken,
     verificarRol('ADMIN'),
-    profesionalController.buscarPorId,
+    obtenerProfesionalPorId,
 )
 
-router.post(
-    '/',
-    verificarToken,
-    verificarRol('ADMIN'),
-    profesionalController.crear,
-)
-
-router.put(
-    '/:id',
-    verificarToken,
-    verificarAdminOPropio,
-    profesionalController.actualizar,
-)
+router.put('/:id', verificarToken, verificarRol('ADMIN'), modificarProfesional)
 
 export default router

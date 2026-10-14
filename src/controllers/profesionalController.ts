@@ -1,169 +1,176 @@
-import type { NextFunction, Request, Response } from 'express'
+import type { Request, Response } from 'express'
 
-import { profesionalService } from '../services/profesionalService.js'
+import {
+    listarProfesionales,
+    buscarProfesionalPorId,
+    buscarProfesionalPorUsuarioId,
+    crearProfesional,
+    actualizarProfesional,
+} from '../services/profesionalService.js'
+
 import { AppError } from '../errors/AppError.js'
 import { MENSAJES } from '../errors/mensajes.js'
+import { esDniValido, esTelefonoValido } from '../utils/validation.js'
 
-export class ProfesionalController {
-    async listar(_req: Request, res: Response, next: NextFunction) {
-        try {
-            const profesionales = await profesionalService.listar()
+function validarId(req: Request): number {
+    const id = Number(req.params.id)
 
-            return res.status(200).json(profesionales)
-        } catch (error) {
-            next(error)
-        }
+    if (!Number.isInteger(id) || id <= 0) {
+        throw new AppError(400, 'El ID debe ser un número entero positivo')
     }
 
-    async buscarPorId(req: Request, res: Response, next: NextFunction) {
-        try {
-            const id = Number(req.params.id)
-
-            if (!Number.isInteger(id) || id <= 0) {
-                throw new AppError(
-                    400,
-                    'El ID debe ser un número entero positivo',
-                )
-            }
-
-            const profesional = await profesionalService.buscarPorId(id)
-
-            if (!profesional) {
-                throw new AppError(404, 'Profesional no encontrado')
-            }
-
-            return res.status(200).json(profesional)
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    async buscarPorUsuarioId(req: Request, res: Response, next: NextFunction) {
-        try {
-            const usuarioId = req.usuario?.id
-
-            if (usuarioId === undefined) {
-                throw new AppError(401, MENSAJES.AUTENTICACION_REQUERIDA)
-            }
-
-            const profesional =
-                await profesionalService.buscarPorUsuarioId(usuarioId)
-
-            if (!profesional) {
-                throw new AppError(404, 'Profesional no encontrado')
-            }
-
-            return res.status(200).json(profesional)
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    async crear(req: Request, res: Response, next: NextFunction) {
-        try {
-            const {
-                nombre,
-                apellido,
-                dni,
-                telefono,
-                matricula,
-                especialidad,
-                usuarioId,
-            } = req.body
-
-            if (
-                typeof nombre !== 'string' ||
-                !nombre.trim() ||
-                typeof apellido !== 'string' ||
-                !apellido.trim() ||
-                typeof dni !== 'string' ||
-                !dni.trim() ||
-                typeof telefono !== 'string' ||
-                !telefono.trim() ||
-                typeof matricula !== 'string' ||
-                !matricula.trim() ||
-                typeof especialidad !== 'string' ||
-                !especialidad.trim() ||
-                typeof usuarioId !== 'number' ||
-                !Number.isInteger(usuarioId) ||
-                usuarioId <= 0
-            ) {
-                throw new AppError(400, 'Datos de profesional inválidos')
-            }
-
-            const profesional = await profesionalService.crear({
-                usuarioId,
-                nombre,
-                apellido,
-                dni,
-                telefono,
-                matricula,
-                especialidad,
-            })
-
-            return res.status(201).json(profesional)
-        } catch (error) {
-            if (error instanceof AppError) {
-                return res.status(error.statusCode).json({
-                    mensaje: error.message,
-                })
-            }
-
-            next(error)
-        }
-    }
-
-    async actualizar(req: Request, res: Response, next: NextFunction) {
-        try {
-            const id = Number(req.params.id)
-
-            if (!Number.isInteger(id) || id <= 0) {
-                throw new AppError(
-                    400,
-                    'El ID debe ser un número entero positivo',
-                )
-            }
-
-            const { nombre, apellido, dni, telefono, matricula, especialidad } =
-                req.body
-
-            if (
-                (nombre !== undefined &&
-                    (typeof nombre !== 'string' || !nombre.trim())) ||
-                (apellido !== undefined &&
-                    (typeof apellido !== 'string' || !apellido.trim())) ||
-                (dni !== undefined &&
-                    (typeof dni !== 'string' || !dni.trim())) ||
-                (telefono !== undefined &&
-                    (typeof telefono !== 'string' || !telefono.trim())) ||
-                (matricula !== undefined &&
-                    (typeof matricula !== 'string' || !matricula.trim())) ||
-                (especialidad !== undefined &&
-                    (typeof especialidad !== 'string' || !especialidad.trim()))
-            ) {
-                throw new AppError(400, 'Datos de profesional inválidos')
-            }
-
-            const profesional = await profesionalService.actualizar(id, {
-                nombre,
-                apellido,
-                dni,
-                telefono,
-                matricula,
-                especialidad,
-            })
-
-            return res.status(200).json(profesional)
-        } catch (error) {
-            if (error instanceof AppError) {
-                return res.status(error.statusCode).json({
-                    mensaje: error.message,
-                })
-            }
-
-            next(error)
-        }
-    }
+    return id
 }
 
-export const profesionalController = new ProfesionalController()
+function esTextoValido(
+    valor: unknown,
+    min: number,
+    max: number,
+): valor is string {
+    if (typeof valor !== 'string') {
+        return false
+    }
+
+    const longitud = valor.trim().length
+
+    return longitud >= min && longitud <= max
+}
+
+function validarDatosActualizacion(body: Request['body']) {
+    const { nombre, apellido, dni, telefono, matricula, especialidad } = body
+
+    if (
+        nombre === undefined &&
+        apellido === undefined &&
+        dni === undefined &&
+        telefono === undefined &&
+        matricula === undefined &&
+        especialidad === undefined
+    ) {
+        throw new AppError(400, 'Datos de actualización inválidos')
+    }
+
+    if (
+        (nombre !== undefined && !esTextoValido(nombre, 2, 100)) ||
+        (apellido !== undefined && !esTextoValido(apellido, 2, 100)) ||
+        (dni !== undefined && (typeof dni !== 'string' || !esDniValido(dni))) ||
+        (telefono !== undefined &&
+            (typeof telefono !== 'string' || !esTelefonoValido(telefono))) ||
+        (matricula !== undefined && !esTextoValido(matricula, 1, 30)) ||
+        (especialidad !== undefined && !esTextoValido(especialidad, 2, 100))
+    ) {
+        throw new AppError(400, 'Datos de actualización inválidos')
+    }
+
+    return { nombre, apellido, dni, telefono, matricula, especialidad }
+}
+
+export async function obtenerProfesionales(_req: Request, res: Response) {
+    const profesionales = await listarProfesionales()
+
+    return res.status(200).json(profesionales)
+}
+
+export async function obtenerProfesionalPorId(req: Request, res: Response) {
+    const id = validarId(req)
+
+    const profesional = await buscarProfesionalPorId(id)
+
+    if (!profesional) {
+        throw new AppError(404, 'Profesional no encontrado')
+    }
+
+    return res.status(200).json(profesional)
+}
+
+export async function obtenerMiPerfilProfesional(req: Request, res: Response) {
+    const usuarioId = req.usuario?.id
+
+    if (usuarioId === undefined) {
+        throw new AppError(401, MENSAJES.AUTENTICACION_REQUERIDA)
+    }
+
+    const profesional = await buscarProfesionalPorUsuarioId(usuarioId)
+
+    if (!profesional) {
+        throw new AppError(404, 'Profesional no encontrado')
+    }
+
+    return res.status(200).json(profesional)
+}
+
+export async function registrarProfesional(req: Request, res: Response) {
+    const {
+        nombre,
+        apellido,
+        dni,
+        telefono,
+        matricula,
+        especialidad,
+        usuarioId,
+    } = req.body
+
+    if (
+        !esTextoValido(nombre, 2, 100) ||
+        !esTextoValido(apellido, 2, 100) ||
+        typeof dni !== 'string' ||
+        !esDniValido(dni) ||
+        typeof telefono !== 'string' ||
+        !esTelefonoValido(telefono) ||
+        !esTextoValido(matricula, 1, 30) ||
+        !esTextoValido(especialidad, 2, 100) ||
+        typeof usuarioId !== 'number' ||
+        !Number.isInteger(usuarioId) ||
+        usuarioId <= 0
+    ) {
+        throw new AppError(400, 'Datos de profesional inválidos')
+    }
+
+    const profesional = await crearProfesional({
+        usuarioId,
+        nombre,
+        apellido,
+        dni,
+        telefono,
+        matricula,
+        especialidad,
+    })
+
+    return res.status(201).json(profesional)
+}
+
+export async function modificarProfesional(req: Request, res: Response) {
+    const id = validarId(req)
+
+    const datos = validarDatosActualizacion(req.body)
+
+    const profesional = await actualizarProfesional(id, datos)
+
+    return res.status(200).json(profesional)
+}
+
+export async function modificarMiPerfilProfesional(
+    req: Request,
+    res: Response,
+) {
+    const usuarioId = req.usuario?.id
+
+    if (usuarioId === undefined) {
+        throw new AppError(401, MENSAJES.AUTENTICACION_REQUERIDA)
+    }
+
+    const profesional = await buscarProfesionalPorUsuarioId(usuarioId)
+
+    if (!profesional) {
+        throw new AppError(404, 'Profesional no encontrado')
+    }
+
+    const datos = validarDatosActualizacion(req.body)
+
+    const profesionalActualizado = await actualizarProfesional(
+        profesional.id,
+        datos,
+    )
+
+    return res.status(200).json(profesionalActualizado)
+}
