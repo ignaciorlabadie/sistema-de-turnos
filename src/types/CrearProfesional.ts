@@ -1,5 +1,6 @@
 export interface CrearProfesional {
-    usuarioId: number
+    email: string
+    password: string
 
     nombre: string
     apellido: string

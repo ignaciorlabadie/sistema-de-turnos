@@ -10,7 +10,12 @@ import {
 
 import { AppError } from '../errors/AppError.js'
 import { MENSAJES } from '../errors/mensajes.js'
-import { esDniValido, esTelefonoValido } from '../utils/validation.js'
+import {
+    esEmailValido,
+    esPasswordValida,
+    esDniValido,
+    esTelefonoValido,
+} from '../utils/validation.js'
 
 function validarId(req: Request): number {
     const id = Number(req.params.id)
@@ -101,16 +106,21 @@ export async function obtenerMiPerfilProfesional(req: Request, res: Response) {
 
 export async function registrarProfesional(req: Request, res: Response) {
     const {
+        email,
+        password,
         nombre,
         apellido,
         dni,
         telefono,
         matricula,
         especialidad,
-        usuarioId,
     } = req.body
 
     if (
+        typeof email !== 'string' ||
+        !esEmailValido(email.trim()) ||
+        typeof password !== 'string' ||
+        !esPasswordValida(password) ||
         !esTextoValido(nombre, 2, 100) ||
         !esTextoValido(apellido, 2, 100) ||
         typeof dni !== 'string' ||
@@ -118,16 +128,14 @@ export async function registrarProfesional(req: Request, res: Response) {
         typeof telefono !== 'string' ||
         !esTelefonoValido(telefono) ||
         !esTextoValido(matricula, 1, 30) ||
-        !esTextoValido(especialidad, 2, 100) ||
-        typeof usuarioId !== 'number' ||
-        !Number.isInteger(usuarioId) ||
-        usuarioId <= 0
+        !esTextoValido(especialidad, 2, 100)
     ) {
         throw new AppError(400, 'Datos de profesional inválidos')
     }
 
     const profesional = await crearProfesional({
-        usuarioId,
+        email,
+        password,
         nombre,
         apellido,
         dni,

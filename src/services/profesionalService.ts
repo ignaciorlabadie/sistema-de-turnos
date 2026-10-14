@@ -1,4 +1,7 @@
+import bcrypt from 'bcryptjs'
+
 import { Profesional, Usuario } from '../models/index.js'
+import sequelize from '../config/database.js'
 
 import { AppError } from '../errors/AppError.js'
 
@@ -54,25 +57,14 @@ export async function buscarProfesionalPorUsuarioId(
 export async function crearProfesional(
     datos: CrearProfesional,
 ): Promise<Profesional | null> {
-    const usuario = await Usuario.findByPk(datos.usuarioId)
+    const email = datos.email.trim().toLowerCase()
 
-    if (!usuario) {
-        throw new AppError(404, 'Usuario no encontrado')
-    }
-
-    if (usuario.rol !== 'PROFESIONAL') {
-        throw new AppError(400, 'El usuario no posee el rol PROFESIONAL')
-    }
-
-    const perfilExistente = await Profesional.findOne({
-        where: { usuarioId: datos.usuarioId },
+    const usuarioExistente = await Usuario.findOne({
+        where: { email },
     })
 
-    if (perfilExistente) {
-        throw new AppError(
-            409,
-            'El usuario ya tiene un perfil profesional asignado',
-        )
+    if (usuarioExistente) {
+        throw new AppError(409, 'El email ya está registrado')
     }
 
     const profesionalConDni = await Profesional.findOne({
@@ -91,14 +83,30 @@ export async function crearProfesional(
         throw new AppError(409, 'La matrícula ya existe')
     }
 
-    const profesional = await Profesional.create({
-        usuarioId: datos.usuarioId,
-        nombre: datos.nombre,
-        apellido: datos.apellido,
-        dni: datos.dni,
-        telefono: datos.telefono,
-        matricula: datos.matricula,
-        especialidad: datos.especialidad,
+    const passwordHasheada = await bcrypt.hash(datos.password, 10)
+
+    const profesional = await sequelize.transaction(async (transaction) => {
+        const usuario = await Usuario.create(
+            {
+                email,
+                password: passwordHasheada,
+                rol: 'PROFESIONAL',
+            },
+            { transaction },
+        )
+
+        return Profesional.create(
+            {
+                usuarioId: usuario.id,
+                nombre: datos.nombre,
+                apellido: datos.apellido,
+                dni: datos.dni,
+                telefono: datos.telefono,
+                matricula: datos.matricula,
+                especialidad: datos.especialidad,
+            },
+            { transaction },
+        )
     })
 
     return Profesional.findByPk(profesional.id, {
