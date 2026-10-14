@@ -11,6 +11,18 @@ class AutorizacionEstudio extends Model {
     declare estado: EstadoAutorizacionEstudio
     declare createdAt: Date
     declare updatedAt: Date
+
+    public revocarProfesional(): void {
+        this.estado = 'VENCIDO'
+    }
+
+    public estaVigente(): boolean {
+        return this.estado === 'DISPONIBLE' && new Date(this.fechaVencimiento) >= new Date()
+    }
+
+    public estaVencida(): boolean {
+        return !this.estaVigente()
+    }
 }
 
 AutorizacionEstudio.init(
