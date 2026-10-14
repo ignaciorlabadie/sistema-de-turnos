@@ -2,26 +2,8 @@ import { Profesional, Usuario } from '../models/index.js'
 
 import { AppError } from '../errors/AppError.js'
 
-export interface CrearProfesionalDTO {
-    usuarioId: number
-
-    nombre: string
-    apellido: string
-    dni: string
-    telefono: string
-
-    matricula: string
-    especialidad: string
-}
-
-export interface ActualizarProfesionalDTO {
-    nombre?: string
-    apellido?: string
-    dni?: string
-    telefono?: string
-    matricula?: string
-    especialidad?: string
-}
+import type { CrearProfesional } from '../types/CrearProfesional.js'
+import type { ActualizarProfesional } from '../types/ActualizarProfesional.js'
 
 const atributosUsuario = {
     attributes: { exclude: ['password'] },
@@ -70,7 +52,7 @@ export async function buscarProfesionalPorUsuarioId(
 }
 
 export async function crearProfesional(
-    datos: CrearProfesionalDTO,
+    datos: CrearProfesional,
 ): Promise<Profesional | null> {
     const usuario = await Usuario.findByPk(datos.usuarioId)
 
@@ -132,7 +114,7 @@ export async function crearProfesional(
 
 export async function actualizarProfesional(
     id: number,
-    datos: ActualizarProfesionalDTO,
+    datos: ActualizarProfesional,
 ): Promise<Profesional | null> {
     const profesional = await Profesional.findByPk(id)
 
