@@ -6,7 +6,7 @@
 
 ### 1. Código analizado
 
-- `src/services/reservaTurnoFacade.ts` -> función `reservarTurno` (línea 63) y
+- `src/facades/reservaTurnoFacade.ts` -> función `reservarTurno` (línea 63) y
   `cancelarTurnoDePaciente` (línea 137). Es el **Facade**.
 - `src/services/turnoService.ts` -> funciones `crearTurno` (línea 6),
   `existeTurnoEnHorario` (línea 19) y `cancelarTurno` (línea 69). Es el
@@ -67,7 +67,7 @@ Elegimos la **opción C: Facade + service**.
 
 **Enlaces al código**:
 
-- Facade: `src/services/reservaTurnoFacade.ts`
+- Facade: `src/facades/reservaTurnoFacade.ts`
 - Service: `src/services/turnoService.ts`
 - Controlador: `src/controllers/turnoController.ts`
 - Ruta publicada: `src/routes/index.ts`
