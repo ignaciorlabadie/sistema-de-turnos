@@ -143,5 +143,5 @@ Por ejemplo, en `reservaTurnoFacade.ts`:
 
 1. const MILISEGUNDOS_24_HORAS -> línea 25
 2. function aMinutos() -> línea 31-35
-3. function construirFechaHora() -> línea 41-43
-4. function diaSemanaDeFecha() -> línea 49-53
+3. function construirFechaHora() -> línea 37-42
+4. function diaSemanaDeFecha() -> línea 44-51

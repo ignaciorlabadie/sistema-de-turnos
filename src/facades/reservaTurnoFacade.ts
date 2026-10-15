@@ -2,6 +2,7 @@ import { Agenda } from '../models/index.js'
 import { AppError } from '../errors/AppError.js'
 import type { CrearTurno } from '../types/CrearTurno.js'
 import type { DiaSemana } from '../types/DiaSemana.js'
+import { esFechaValida } from '../utils/validation.js'
 import {
     crearTurno,
     existeTurnoEnHorario,
@@ -9,7 +10,7 @@ import {
     cancelarTurno,
 } from '../services/turnoService.js'
 
-// Nombres de días alineados con el índice que devuelve Date.getUTCDay()
+// Nombres de días alineados con el índice que devuelve Date.getDay()
 // (0 = domingo ... 6 = sábado), para mapear una fecha a un DiaSemana.
 const DIAS_SEMANA: DiaSemana[] = [
     'DOMINGO',
@@ -34,22 +35,39 @@ function aMinutos(hora: string): number {
     return horas * 60 + minutos
 }
 
-/**
-Combina una fecha 'YYYY-MM-DD' y una hora 'HH:MM' (o 'HH:MM:SS') en un
-objeto Date, usado para comparar contra el momento actual.
-*/
 function construirFechaHora(fecha: string, hora: string): Date {
-    return new Date(`${fecha}T${hora.slice(0, 5)}:00`)
+    if (!esFechaValida(fecha)) {
+        throw new AppError(400, 'La fecha no es válida')
+    }
+
+    const [year = 0, month = 1, day = 1] = fecha.split('-').map(Number)
+    const [horas = 0, minutos = 0] = hora.split(':').map(Number)
+
+    if (
+        Number.isNaN(horas) ||
+        horas < 0 ||
+        horas > 23 ||
+        Number.isNaN(minutos) ||
+        minutos < 0 ||
+        minutos > 59
+    ) {
+        throw new AppError(400, 'La hora no es válida')
+    }
+
+    return new Date(year, month - 1, day, horas, minutos, 0)
 }
 
-/**
-Devuelve el día de la semana ('LUNES', 'MARTES', ...) de una fecha
-'YYYY-MM-DD'. Se calcula en UTC para evitar corrimientos de zona horaria.
-*/
 function diaSemanaDeFecha(fecha: string): DiaSemana {
-    const indice = new Date(`${fecha}T00:00:00Z`).getUTCDay()
+    if (!esFechaValida(fecha)) {
+        throw new AppError(400, 'La fecha no es válida')
+    }
 
-    return DIAS_SEMANA[indice] ?? 'DOMINGO'
+    const [year = 0, month = 1, day = 1] = fecha.split('-').map(Number)
+
+    // Al pasar números enteros, JS asume zona horaria local.
+    const fechaLocal = new Date(year, month - 1, day)
+
+    return DIAS_SEMANA[fechaLocal.getDay()] ?? 'DOMINGO'
 }
 
 /*
@@ -108,8 +126,10 @@ export async function reservarTurno(datos: CrearTurno) {
         )
     }
 
+    const momentoTurno = construirFechaHora(datos.fecha, datos.hora).getTime()
+
     // No permitir turnos en una fecha anterior al actual
-    if (construirFechaHora(datos.fecha, datos.hora).getTime() < Date.now()) {
+    if (momentoTurno < Date.now()) {
         throw new AppError(400, 'No podés reservar un turno en el pasado')
     }
 
@@ -156,8 +176,12 @@ export async function cancelarTurnoDePaciente(
         throw new AppError(409, 'No se puede cancelar un turno ya atendido')
     }
 
-    const falta =
-        construirFechaHora(turno.fecha, turno.hora).getTime() - Date.now()
+    const momentoTurno = construirFechaHora(turno.fecha, turno.hora).getTime()
+    const falta = momentoTurno - Date.now()
+
+    if (falta <= 0) {
+        throw new AppError(400, 'No podés cancelar un turno que ya empezó')
+    }
 
     // Debe existir al menos 24 h de anticipación.
     if (falta < MILISEGUNDOS_24_HORAS) {
