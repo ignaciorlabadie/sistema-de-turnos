@@ -16,16 +16,7 @@ import {
     esDniValido,
     esTelefonoValido,
 } from '../utils/validation.js'
-
-function validarId(req: Request): number {
-    const id = Number(req.params.id)
-
-    if (!Number.isInteger(id) || id <= 0) {
-        throw new AppError(400, 'El ID debe ser un número entero positivo')
-    }
-
-    return id
-}
+import { validarId } from '../utils/validarId.js'
 
 function esTextoValido(
     valor: unknown,
@@ -77,7 +68,7 @@ export async function obtenerProfesionales(_req: Request, res: Response) {
 }
 
 export async function obtenerProfesionalPorId(req: Request, res: Response) {
-    const id = validarId(req)
+    const id = validarId(req.params.id)
 
     const profesional = await buscarProfesionalPorId(id)
 
@@ -148,7 +139,7 @@ export async function registrarProfesional(req: Request, res: Response) {
 }
 
 export async function modificarProfesional(req: Request, res: Response) {
-    const id = validarId(req)
+    const id = validarId(req.params.id)
 
     const datos = validarDatosActualizacion(req.body)
 

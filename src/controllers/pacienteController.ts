@@ -17,16 +17,7 @@ import {
     esTelefonoValido,
     esFechaNacimientoValida,
 } from '../utils/validation.js'
-
-function validarId(req: Request): number {
-    const id = Number(req.params.id)
-
-    if (!Number.isInteger(id) || id <= 0) {
-        throw new AppError(400, 'El ID debe ser un número entero positivo')
-    }
-
-    return id
-}
+import { validarId } from '../utils/validarId.js'
 
 function esTextoValido(
     valor: unknown,
@@ -80,7 +71,7 @@ export async function obtenerPacientes(_req: Request, res: Response) {
 }
 
 export async function obtenerPacientePorId(req: Request, res: Response) {
-    const id = validarId(req)
+    const id = validarId(req.params.id)
 
     const paciente = await buscarPacientePorId(id)
 
@@ -152,7 +143,7 @@ export async function registrarPaciente(req: Request, res: Response) {
 }
 
 export async function modificarPaciente(req: Request, res: Response) {
-    const id = validarId(req)
+    const id = validarId(req.params.id)
 
     const datos = validarDatosActualizacion(req.body)
 
