@@ -7,7 +7,7 @@ import {
     existeTurnoEnHorario,
     buscarTurnoPorId,
     cancelarTurno,
-} from './turnoService.js'
+} from '../services/turnoService.js'
 
 // Nombres de días alineados con el índice que devuelve Date.getUTCDay()
 // (0 = domingo ... 6 = sábado), para mapear una fecha a un DiaSemana.

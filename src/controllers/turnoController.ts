@@ -5,7 +5,7 @@ import { listarTurnosDePaciente } from '../services/turnoService.js'
 import {
     reservarTurno,
     cancelarTurnoDePaciente,
-} from '../services/reservaTurnoFacade.js'
+} from '../facades/reservaTurnoFacade.js'
 import { AppError } from '../errors/AppError.js'
 import { MENSAJES } from '../errors/mensajes.js'
 import { esFechaValida } from '../utils/validation.js'
