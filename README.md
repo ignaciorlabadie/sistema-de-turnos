@@ -38,6 +38,7 @@ El sistema cuenta con tres niveles de acceso, cada uno con responsabilidades y v
 - Express
 - Sequelize
 - PostgreSQL
+- Docker
 
 ## Requisitos
 
@@ -46,6 +47,7 @@ Antes de comenzar, es necesario tener instalado:
 - Node.js 24.20.0
 - npm
 - Git
+- Docker
 
 ## Instalación
 
@@ -72,20 +74,54 @@ npm ci
 Para levantar el proyecto:
 
 ```bash
-npm run dev
+docker compose up --build
+```
+
+Para ejecutar las migraciones:
+
+```bash
+npm run db:migrate
 ```
 
 ## Estructura del proyecto
 
 ```text
 sistema-de-turnos/
+├──.husky
 ├── src/
+    ├── config/
+    ├── controllers/
+    ├── database/
+        ├── migrations/
+    ├── docs/
+        ├── desiciones-diseño.md
+    ├── errors/
+    ├── facades/
+    ├── middlewares/
+    ├── models/
+    ├── routes/
+    ├── services/
+    ├── types/
+    ├── utils/
+    ├── app.ts
+    └── server.ts
+├── tests/
+├── .dockerignore
 ├── .env
+├── .env.example
 ├── .gitignore
 ├── .nvmrc
-├── package.json
+├── .prettierignore
+├── .prettierrc
+├── docker-compose.yml
+├── Dockerfile
+├── eslint.config.js
 ├── package-lock.json
-└── tsconfig.json
+├── package.json
+├── README.md
+├── tsconfig.json
+├── tsconfig.test.json
+└── vitest.config.ts
 ```
 
 ## Estado del proyecto
