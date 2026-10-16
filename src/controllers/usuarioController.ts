@@ -14,16 +14,7 @@ import { ROLES } from '../types/Rol.js'
 import { AppError } from '../errors/AppError.js'
 import { MENSAJES } from '../errors/mensajes.js'
 import { esEmailValido, esPasswordValida } from '../utils/validation.js'
-
-function validarId(req: Request): number {
-    const id = Number(req.params.id)
-
-    if (!Number.isInteger(id) || id <= 0) {
-        throw new AppError(400, 'El ID debe ser un número entero positivo')
-    }
-
-    return id
-}
+import { validarId } from '../utils/validarId.js'
 
 export async function obtenerUsuarios(_req: Request, res: Response) {
     const usuarios = await listarUsuarios()
@@ -32,7 +23,7 @@ export async function obtenerUsuarios(_req: Request, res: Response) {
 }
 
 export async function obtenerUsuarioPorId(req: Request, res: Response) {
-    const id = validarId(req)
+    const id = validarId(req.params.id)
 
     const usuario = await buscarUsuarioPorId(id)
 
@@ -85,7 +76,7 @@ export async function registrarUsuario(req: Request, res: Response) {
 }
 
 export async function modificarUsuario(req: Request, res: Response) {
-    const id = validarId(req)
+    const id = validarId(req.params.id)
 
     const { email, activo, password } = req.body
 
@@ -113,7 +104,7 @@ export async function modificarUsuario(req: Request, res: Response) {
 }
 
 export async function desactivarUsuarioController(req: Request, res: Response) {
-    const id = validarId(req)
+    const id = validarId(req.params.id)
 
     const usuario = await desactivarUsuario(id)
 
@@ -121,7 +112,7 @@ export async function desactivarUsuarioController(req: Request, res: Response) {
 }
 
 export async function reactivarUsuarioController(req: Request, res: Response) {
-    const id = validarId(req)
+    const id = validarId(req.params.id)
 
     const usuario = await reactivarUsuario(id)
 

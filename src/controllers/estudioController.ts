@@ -11,16 +11,7 @@ import {
 
 import { AppError } from '../errors/AppError.js'
 import { esUrlValida, esFechaValida } from '../utils/validation.js'
-
-function validarId(valor: unknown, nombreCampo = 'ID'): number {
-  const id = Number(valor)
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new AppError(400, `El ${nombreCampo} debe ser un número entero positivo`)
-  }
-
-  return id
-}
+import { validarId } from '../utils/validarId.js'
 
 export async function obtenerEstudios(_req: Request, res: Response) {
   const estudios = await listarEstudios()

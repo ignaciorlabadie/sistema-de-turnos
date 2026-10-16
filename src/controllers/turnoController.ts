@@ -9,21 +9,9 @@ import {
 import { AppError } from '../errors/AppError.js'
 import { MENSAJES } from '../errors/mensajes.js'
 import { esFechaValida } from '../utils/validation.js'
+import { validarId } from '../utils/validarId.js'
 
 const HORA_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/
-
-function validarId(valor: unknown, nombreCampo = 'ID'): number {
-    const id = Number(valor)
-
-    if (!Number.isInteger(id) || id <= 0) {
-        throw new AppError(
-            400,
-            `El ${nombreCampo} debe ser un número entero positivo`,
-        )
-    }
-
-    return id
-}
 
 async function resolverPaciente(req: Request) {
     const usuarioId = req.usuario?.id

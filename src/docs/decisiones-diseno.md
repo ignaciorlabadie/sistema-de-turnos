@@ -6,13 +6,13 @@
 
 ### 1. Código analizado
 
-- `src/facades/reservaTurnoFacade.ts` -> función `reservarTurno` (línea 63) y
-  `cancelarTurnoDePaciente` (línea 137). Es el **Facade**.
+- `src/facades/reservaTurnoFacade.ts` -> función `reservarTurno` (línea 81) y
+  `cancelarTurnoDePaciente` (línea 157). Es el **Facade**.
 - `src/services/turnoService.ts` -> funciones `crearTurno` (línea 6),
   `existeTurnoEnHorario` (línea 19) y `cancelarTurno` (línea 69). Es el
   service "chico" que solo habla con la base de datos.
-- `src/controllers/turnoController.ts` -> `sacarTurno` (línea 52) y
-  `cancelarMiTurno` (línea 98). Solo recibe el pedido y llama al Facade.
+- `src/controllers/turnoController.ts` -> `sacarTurno` (línea 40) y
+  `cancelarMiTurno` (línea 86). Solo recibe el pedido y llama al Facade.
 - `src/routes/turnoRoutes.ts` y `src/routes/index.ts` (línea 19) -> donde se
   publican las rutas `POST /api/turnos/me` y `PATCH /api/turnos/me/:id/cancelar`.
 - `src/models/Turno.ts`, `src/models/Agenda.ts` y las relaciones en
@@ -48,7 +48,7 @@ en 'reservaTurnoFacade.ts' para coordinar esas acciones.
   Mezcla dos responsabilidades en el mismo lugar. La descartamos.
 - **C. Facade + service** (lo que elegimos). El Facade tiene las reglas,
   el service solo guarda.
-- **E. Conservar lo actual** No estaba implementado aún, asi que no había forma de
+- **D. Conservar lo actual** No estaba implementado aún, asi que no había forma de
   mantener lo que teníamos, ya que quedaría incompleto.
 
 ### 4. Decisión
@@ -58,7 +58,7 @@ Elegimos la **opción C: Facade + service**.
 ¿Por qué?
 
 - El controlador quedó de pocas líneas: valida el pedido y llama al Facade.
-- Las reglas del turno están en **un solo lugar**, fáciles de encontrar.
+- Las reglas del turno están en un solo lugar, fáciles de encontrar.
 - Se puede reusar: el mismo `reservarTurno` sirve si después el profesional o
   el admin también quieren reservar.
 - Encaja con las capas que ya tenía el proyecto, sin reescribir nada.
@@ -86,53 +86,59 @@ Elegimos la **opción C: Facade + service**.
 
 ---
 
-## Caso 2: pequeños problemas sin modificar.
-
-Estos no los cambiamos en esta iteración, pero los anotamos como deuda
-técnica (mejoras para más adelante).
+## Caso 2: Código duplicado (code smell).
 
 ### 1. Código analizado
 
-- `src/controllers/estudioController.ts`
-- `src/controllers/pacienteController.ts`
-- `src/controllers/profesionalController.ts`
-- `src/controllers/autorizacionEstudioController.ts`
-- `src/controllers/turnoController.ts`
-- `src/controllers/usuarioController.ts`
-- `src/services/espacioService.ts`
+- Los 6 controladores que tenían su propia copia de `validarId`:
+  `src/controllers/estudioController.ts`,
+  `src/controllers/pacienteController.ts`,
+  `src/controllers/profesionalController.ts`,
+  `src/controllers/autorizacionEstudioController.ts`,
+  `src/controllers/turnoController.ts` y
+  `src/controllers/usuarioController.ts`.
+- `src/services/espacioService.ts`.
 
 ### 2. Diagnóstico
 
-- **Código duplicado:** la misma función `validarId` está copiada en 6
+- **Código duplicado:** la misma función `validarId` estaba copiada en 6
   controladores. Es un **code smell**, es decir, una señal de que algo se
   puede mejorar: si hay que cambiarla, hay que acordarse de los 6 archivos.
 - **Convención distinta:** casi todos los services usan exportaciones con
   nombre, pero `espacioService.ts` es el único que usa `export default`.
-  No es un error, pero rompe la costumbre del proyecto.
+  No es un error, pero es distinto al resto del proyecto.
 
 ### 3. Alternativas
 
-- **A. Extraer `validarId` a un archivo compartido** (por ejemplo
-  `src/utils/validation.ts`) y usarlo en todos los controladores.
-- **B. Dejarlo como está.**
+- **A. Extraer `validarId` a un archivo compartido** y usarlo en todos los
+  controladores.
+- **B. Dejarlo como estaba.**
 
 ### 4. Decisión
 
-Mantenerlo como está para esta entrega y solucionarlo posteriormente
-extraer validarId de los controladores y llevarlo a `src/utils/validation.ts`.
+Elegimos la **opción A**. Movimos `validarId` a `src/utils/validarId.ts` y ahora
+los 6 controladores lo importan.
+
+¿Por qué un archivo nuevo y no `src/utils/validation.ts`? Porque
+`validation.ts` tiene funciones que devuelven `true` o `false`, y `validarId`
+hace otra cosa: si el id está mal, lanza un error (`AppError`). Los separamos
+para que cada archivo tenga una sola responsabilidad.
+
+También unificamos la firma en `validarId(valor, nombreCampo)`, así el mensaje
+puede decir "ID del turno" o "ID del paciente" según el caso. Y agregamos un
+test en `tests/unit/validarId.test.ts`.
 
 ### 5. Evidencia y trade-offs
 
-- **Beneficio de no tocarlo:** la entrega queda chica y enfocada en el turno.
-- **Costo de no tocarlo:** el código repetido sigue ahí; cada cambio futuro
-  hay que hacerlo en varios archivos.
-- **Mejora propuesta:** mover `validarId` a `src/utils/validation.ts` y
-  reusarlo. Es un ejemplo de **refactoring** (cambiar el código sin cambiar lo
-  que hace).
+- **Beneficio:** ahora hay **una sola** definición de `validarId`; un cambio se
+  hace en un solo lugar.
+- **Costo:** hubo que tocar 6 controladores, pero sin cambiar lo que hacen
+  (hubo refactoring).
+- **Deuda pendiente:** `espacioService.ts` sigue usando `export default`.
 
 ---
 
-### 5. Uso de IA
+## Uso de IA
 
 Se utilizaron herramientas de inteligencia artificial como asistencia durante el
 desarrollo, principalmente para proponer ideas de implementación y agilizar la
@@ -141,7 +147,7 @@ antes de su utilización.
 
 Por ejemplo, en `reservaTurnoFacade.ts`:
 
-1. const MILISEGUNDOS_24_HORAS -> línea 25
-2. function aMinutos() -> línea 31-35
-3. function construirFechaHora() -> línea 37-42
-4. function diaSemanaDeFecha() -> línea 44-51
+1. const MILISEGUNDOS_24_HORAS -> línea 26
+2. function aMinutos() -> línea 32-36
+3. function construirFechaHora() -> línea 38-58
+4. function diaSemanaDeFecha() -> línea 60-71
